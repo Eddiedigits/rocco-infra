@@ -1,0 +1,33 @@
+# Sensitive config
+.env
+password.txt
+settings_private.py
+
+# Python junk
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+volumes/
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.bak
+*.swp
+*.swo
+
+# Keys / certs
+*.pem
+*.key

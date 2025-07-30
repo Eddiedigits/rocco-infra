@@ -1,0 +1,65 @@
+services:
+  rocco:
+    container_name: rocco
+    build: .
+    restart: unless-stopped
+    ports:
+      - ${ROCCO_PORT}:8080
+    networks:
+      - nginx-proxy
+      - backend
+    volumes:
+      - rocco_apps:/home/act/apps
+    environment:
+      VIRTUAL_HOST: ${ROCCO_VIRTUAL_HOST}
+      LETSENCRYPT_HOST: ${ROCCO_LETSENCRYPT_HOST}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+      CELERY_LOGLEVEL: ${CELERY_LOGLEVEL}
+    depends_on:
+      - rocco-redis
+      - wekan-db
+
+  rocco-redis:
+    container_name: rocco-redis
+    image: redis:7.2.4-alpine3.19
+    restart: unless-stopped
+    networks:
+      - backend
+
+  wekan-db:
+    image: mongo:4.4
+    container_name: wekan-db
+    restart: unless-stopped
+    volumes:
+      - wekan-db:/data/db
+    networks:
+      - backend
+
+  wekan:
+    image: wekanteam/wekan
+    container_name: wekan
+    restart: unless-stopped
+    environment:
+      - MONGO_URL=mongodb://wekan-db:27017/wekan
+      - ROOT_URL=${WEKAN_ROOT_URL}
+      - PORT=${WEKAN_PORT}
+      - VIRTUAL_HOST=${WEKAN_VIRTUAL_HOST}
+      - LETSENCRYPT_HOST=${WEKAN_LETSENCRYPT_HOST}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    expose:
+      - ${WEKAN_PORT}
+    depends_on:
+      - wekan-db
+    networks:
+      - nginx-proxy
+      - backend
+
+volumes:
+  rocco_apps:
+  wekan-db:
+
+networks:
+  nginx-proxy:
+    external: true
+  backend:
+    external: true
