@@ -22,12 +22,13 @@ WORKDIR /home/${USER}
 EXPOSE 8080
 
 # Create virtual environment and install Python packages
-RUN python3 -m venv venv
+RUN python3 -m venv venv & venv/bin/activate
+RUN python -m pip install --upgrade py4web --no-cache-dir
 COPY --chown=${USER}:${USER} requirements.txt .
-RUN venv/bin/pip install -r requirements.txt
+RUN python -m pip install -r requirements.txt
 
 # Setup py4web
-RUN venv/bin/py4web setup --yes apps && \
+RUN py4web setup --yes apps && \
     ls -d apps/*/ | grep -v '__' | grep -v '_dashboard' | while read dir; do rm -rf "$dir"; done
 
 # Clone Rocco application from GitHub
